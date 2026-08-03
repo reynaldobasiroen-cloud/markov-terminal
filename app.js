@@ -29,18 +29,6 @@ const sheetTemplates = {
   dnaSheet: { icon: 'fingerprint', title: 'Your Trading DNA', body: 'You are not a prediction trader. You do best when momentum is already proven and risk is predefined.', rows: [['Strength', 'Patience'], ['Weakness', 'FOMO after wins'], ['Best timeframe', '4H'], ['Worst setup', '15m chop']], action: 'View full report' }
 };
 
-const pageTitles = {
-  dashboard: 'Trade less. Trade better.',
-  charts: 'Real-time charts for decisions.',
-  scanner: 'Find setups worth checking.',
-  journal: 'Your decisions, not just results.',
-  coach: 'Ask before entry.',
-  dna: 'Your edge is becoming clearer.',
-  research: 'Verified Trade Opportunity — Setup #412',
-  archive: 'Historical Setups — Opportunity Archive',
-  performance: 'Your Trading Results'
-};
-
 // ─── State ───
 let activeCoin = coins[0];
 let currentInterval = '1h';          // Binance format
@@ -828,12 +816,10 @@ function bindNavigation() {
 
 function navigate(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === `${page}-page`));
-  document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.page === page));
-  document.getElementById('pageTitle').textContent = pageTitles[page] || pageTitles.dashboard;
-  const sub = document.getElementById('pageSubtitle');
-  if (sub) sub.textContent = ['research','archive','performance'].includes(page)
-    ? 'Probability-driven crypto research'
-    : 'Research-grade tools for disciplined traders';
+  document.querySelectorAll('.bn-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  const label = document.getElementById('pageLabel');
+  const labels = { research:'Research', archive:'Archive', performance:'Performance', dashboard:'Dashboard', charts:'Charts', scanner:'Scanner', journal:'Journal', coach:'Coach', dna:'DNA' };
+  if (label) label.textContent = labels[page] || 'Dashboard';
   // Trigger resize on chart when navigating to charts page
   if (page === 'charts') {
     setTimeout(() => {

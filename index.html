@@ -3,413 +3,322 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Markov Terminal — Crypto Decision Website</title>
+  <title>Markov Terminal — Probability-Driven Crypto Research</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
 
-  <main class="terminal-layout">
-    <aside class="sidebar">
-      <a class="brand" href="#dashboard" data-page="dashboard">
-        <span class="brand-mark">/</span>
-        <div>
-          <strong>Markov</strong>
-          <small>Research Terminal</small>
+<header class="topbar">
+  <a class="logo" href="#" data-page="dashboard"><span class="slash">/</span>Markov</a>
+  <div class="topbar-info">
+    <span id="pageLabel" class="page-label">Research Terminal</span>
+  </div>
+</header>
+
+<main class="content">
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <section class="page active" id="dashboard-page">
+    <div class="regime-banner">
+      <div>
+        <span class="tag green">Trending Bullish</span>
+        <span class="tag yellow" style="margin-left:8px">Greed 72</span>
+        <span class="tag" style="margin-left:8px">BTC $68.4K</span>
+      </div>
+      <div style="color:var(--text-secondary);font-size:11px">BTC reclaims range. Funding neutral. Layer-1 rotation.</div>
+    </div>
+
+    <div class="section-head">
+      <h3>Today's Opportunities</h3>
+      <span style="font-size:10px;color:var(--green)">2 active</span>
+    </div>
+
+    <div class="opp-list">
+      <div class="opp-row active" data-page="research">
+        <div class="opp-left">
+          <span class="opp-status active">ACTIVE</span>
+          <b>SOL/USDT #412</b>
         </div>
-      </a>
-
-      <nav class="side-nav" aria-label="Terminal navigation">
-        <p class="nav-label">RESEARCH TERMINAL</p>
-        <button class="nav-link" data-page="research"><span class="material-symbols-rounded">lab_research</span>Research</button>
-        <button class="nav-link" data-page="archive"><span class="material-symbols-rounded">archive</span>Archive</button>
-        <button class="nav-link" data-page="performance"><span class="material-symbols-rounded">insights</span>Performance</button>
-        <div class="nav-divider"></div>
-        <p class="nav-label">TRADING TOOLS</p>
-        <button class="nav-link active" data-page="dashboard"><span class="material-symbols-rounded">space_dashboard</span>Dashboard</button>
-        <button class="nav-link" data-page="charts"><span class="material-symbols-rounded">candlestick_chart</span>Live Charts</button>
-        <button class="nav-link" data-page="scanner"><span class="material-symbols-rounded">radar</span>Scanner</button>
-        <button class="nav-link" data-page="journal"><span class="material-symbols-rounded">view_carousel</span>Journal</button>
-        <button class="nav-link" data-page="coach"><span class="material-symbols-rounded">forum</span>AI Coach</button>
-        <button class="nav-link" data-page="dna"><span class="material-symbols-rounded">fingerprint</span>Trading DNA</button>
-      </nav>
-
-      <section class="sidebar-card">
-        <p class="label">Today's rule</p>
-        <strong>Only trade after confirmation.</strong>
-        <small>Your last 6 losses came from early entries in choppy sessions.</small>
-      </section>
-    </aside>
-
-    <section class="main-panel">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Markov Terminal</p>
-          <h1 id="pageTitle">Trade less. Trade better.</h1>
-          <p class="topbar-sub" id="pageSubtitle">Probability-driven crypto research</p>
+        <div class="opp-mid">
+          <span>Prob <b class="green">84%</b></span>
+          <span>Grade <b class="green">A</b></span>
+          <span>Entry <b>$173–176</b></span>
         </div>
-      </header>
-
-      <section class="page active" id="dashboard-page">
-        <section class="hero-grid">
-          <article class="ai-panel card" data-sheet="regimeSheet">
-            <div class="orb"><span class="material-symbols-rounded">auto_awesome</span></div>
-            <p class="label">AI market read</p>
-            <h2>Sideways market. Rising leverage. Trade smaller.</h2>
-            <p>BTC is holding structure, but funding and open interest are warming. Breakouts need real volume confirmation before you size up.</p>
-            <div class="decision-tags">
-              <span class="tag green">BTC trend supportive</span>
-              <span class="tag yellow">Funding warm</span>
-              <span class="tag red">Volatility high</span>
-            </div>
-          </article>
-
-          <article class="chart-preview card">
-            <div class="section-head">
-              <div>
-                <p class="label">Live data preview</p>
-                <h3>BTC / USDT</h3>
-              </div>
-              <button class="text-button" data-page="charts">Full chart</button>
-            </div>
-            <div class="mini-chart-container" id="miniChart"></div>
-          </article>
-        </section>
-
-        <section class="market-pulse card">
-          <div class="section-head">
-            <div>
-              <p class="label">Market pulse</p>
-              <h3>30-second market check</h3>
-            </div>
-            <button class="text-button" data-sheet="pulseSheet">Explain</button>
-          </div>
-          <div class="pulse-grid" id="pulseGrid"></div>
-        </section>
-
-        <section class="content-grid two-col">
-          <article class="card">
-            <div class="section-head">
-              <div>
-                <p class="label">Watchlist</p>
-                <h3>Coins worth checking</h3>
-              </div>
-              <button class="text-button" data-page="scanner">Scan</button>
-            </div>
-            <div class="watchlist-table" id="watchlistTable"></div>
-          </article>
-
-          <article class="card">
-            <div class="section-head">
-              <div>
-                <p class="label">Decision analytics</p>
-                <h3>Your pattern this week</h3>
-              </div>
-            </div>
-            <div class="insight-stack">
-              <button class="insight-item" data-sheet="patternSheet"><span class="material-symbols-rounded">warning</span><div><strong>80% losses in sideways market</strong><small>You force entries when price is inside range.</small></div></button>
-              <button class="insight-item" data-sheet="patternSheet"><span class="material-symbols-rounded">trending_up</span><div><strong>+24% winrate after volume confirmation</strong><small>This is your clearest edge.</small></div></button>
-              <button class="insight-item" data-sheet="patternSheet"><span class="material-symbols-rounded">psychology</span><div><strong>Overtrade risk after two wins</strong><small>Slow down after winning streaks.</small></div></button>
-            </div>
-          </article>
-        </section>
-
-        <section class="card" id="dbStatsPanel" style="padding:22px;margin-top:18px">
-          <p style="color:var(--muted);padding:16px">IndexedDB initializing...</p>
-        </section>
-      </section>
-
-      <section class="page" id="charts-page">
-        <section class="chart-terminal card">
-          <div class="section-head chart-head">
-            <div>
-              <p class="label" id="chartSourceLabel">Raw data from Binance API — no embed, no widget</p>
-              <h2 id="activeChartTitle">BTCUSDT</h2>
-              <p>Real OHLCV data fetched from Binance public API. Rendered with Lightweight Charts. <strong>Data is yours to process.</strong></p>
-            </div>
-            <div class="timeframe-pills">
-              <button class="tf active">1H</button>
-              <button class="tf">4H</button>
-              <button class="tf">1D</button>
-              <button class="tf">1W</button>
-            </div>
-          </div>
-
-          <div class="coin-tabs" id="coinTabs"></div>
-
-          <div class="chart-with-stats">
-            <div class="live-chart-canvas" id="mainChart"></div>
-            <div class="live-price-bar" id="livePriceBar">
-              <span class="price-loading">Loading from Binance...</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="content-grid three-col" id="chartStats"></section>
-
-        <section class="raw-data-panel card" id="rawDataPanel">
-          <div class="section-head">
-            <div>
-              <p class="label">Raw OHLCV Data</p>
-              <h3>Process this data for your Markov model</h3>
-            </div>
-            <div class="raw-data-actions">
-              <button class="ghost-button" id="copyJsonBtn"><span class="material-symbols-rounded">content_copy</span>Copy JSON</button>
-              <button class="ghost-button" id="downloadJsonBtn"><span class="material-symbols-rounded">download</span>Download .json</button>
-              <button class="ghost-button" id="toggleRawBtn"><span class="material-symbols-rounded">visibility</span>Toggle table</button>
-            </div>
-          </div>
-          <div class="raw-data-table-wrapper" id="rawDataTableWrapper">
-            <table class="raw-data-table" id="rawDataTable">
-              <thead>
-                <tr>
-                  <th>Time</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th>
-                  <th>Δ%</th><th>Range%</th><th>Direction</th>
-                </tr>
-              </thead>
-              <tbody id="rawDataBody">
-                <tr><td colspan="9" class="loading-cell">Fetching raw data from Binance API...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-
-      <section class="page" id="scanner-page">
-        <section class="card">
-          <div class="section-head">
-            <div>
-              <p class="label">Coin Scanner</p>
-              <h2>Setups worth checking, not blind signals.</h2>
-            </div>
-            <button class="ghost-button" data-sheet="filterSheet"><span class="material-symbols-rounded">tune</span>Filters</button>
-          </div>
-          <div class="filter-row">
-            <button class="chip active" data-filter="Momentum">Momentum</button>
-            <button class="chip" data-filter="Low risk">Low risk</button>
-            <button class="chip" data-filter="Breakout">Breakout</button>
-            <button class="chip" data-filter="Funding cool">Funding cool</button>
-          </div>
-          <div class="scanner-table" id="scannerTable"></div>
-        </section>
-      </section>
-
-      <section class="page" id="journal-page">
-        <section class="content-grid two-col journal-grid">
-          <article class="card">
-            <div class="section-head">
-              <div>
-                <p class="label">Trading Card Journal</p>
-                <h2>Capture the decision before the result.</h2>
-              </div>
-              <button class="primary-button" data-sheet="newTradeSheet"><span class="material-symbols-rounded">add</span>New card</button>
-            </div>
-            <div class="trade-card win" data-sheet="tradeReviewSheet">
-              <div><strong>SOL long after range reclaim</strong><small>Calm · confidence 78% · 4H setup</small></div><b>+2.4R</b>
-            </div>
-            <div class="trade-card loss" data-sheet="tradeReviewSheet">
-              <div><strong>PEPE impulse long during chop</strong><small>FOMO · confidence 42% · 15m setup</small></div><b>-1.0R</b>
-            </div>
-          </article>
-
-          <article class="card coach-note">
-            <p class="label">AI trade review</p>
-            <h2>Good trades are not just winners.</h2>
-            <p>I score thesis quality, entry location, emotional state, risk/reward, and market context separately from PnL.</p>
-            <div class="score-bars">
-              <div><span>Thesis quality</span><i style="width:82%"></i></div>
-              <div><span>Risk control</span><i style="width:74%"></i></div>
-              <div><span>Emotional discipline</span><i style="width:61%"></i></div>
-            </div>
-          </article>
-        </section>
-      </section>
-
-      <section class="page" id="coach-page">
-        <section class="coach-layout">
-          <article class="card coach-main">
-            <p class="label">AI Trade Coach</p>
-            <h2>Ask before entry.</h2>
-            <div class="coach-thread" id="coachThread">
-              <div class="bubble ai">I checked the market, your journal, and scanner. SOL is tradable, but only if BTC closes above the current range.</div>
-              <div class="bubble user">Is this SOL setup worth taking?</div>
-              <div class="bubble ai">Maybe. Your edge improves if you wait for volume confirmation. If you enter now, use half size.</div>
-            </div>
-            <div class="prompt-row">
-              <button data-question="Why did my winrate drop?">Why did my winrate drop?</button>
-              <button data-question="Which coin fits me today?">Which coin fits me today?</button>
-              <button data-question="Review my last trade">Review my last trade</button>
-            </div>
-            <form class="chat-box" id="coachForm">
-              <input id="coachInput" placeholder="Ask about a setup, risk, or habit" />
-              <button type="submit"><span class="material-symbols-rounded">arrow_forward</span></button>
-            </form>
-          </article>
-        </section>
-      </section>
-
-      <section class="page" id="dna-page">
-        <section class="content-grid two-col">
-          <article class="card dna-card" data-sheet="dnaSheet">
-            <div class="dna-ring"><span>72</span><small>DNA score</small></div>
-            <div>
-              <p class="label">Trading DNA</p>
-              <h2>Patient momentum trader.</h2>
-              <p>You do best after confirmation, not prediction. Your edge is strongest on SOL and 4H structures.</p>
-            </div>
-          </article>
-          <article class="card">
-            <p class="label">This week's mission</p>
-            <h2>Maximum 2 trades per day.</h2>
-            <p>This protects your expectancy from revenge entries after losses and overconfidence after wins.</p>
-            <div class="mission-progress"><i style="width:60%"></i></div>
-            <small>3 of 5 days completed</small>
-          </article>
-        </section>
-      </section>
-
-      <!-- ═══ RESEARCH (v2) ═══ -->
-      <section class="page" id="research-page">
-        <section class="detail-header">
-          <div class="detail-title">
-            <div class="opp-status active large">ACTIVE</div>
-            <div>
-              <p class="label">Verified Trade Opportunity</p>
-              <h2>SOL / USDT — Setup #412</h2>
-            </div>
-          </div>
-          <div class="detail-quick-stats">
-            <div class="stat"><span>Probability</span><b class="green">84%</b></div>
-            <div class="stat"><span>Confidence</span><b class="grade a">A</b></div>
-            <div class="stat"><span>Expected RR</span><b>1 : 2.9</b></div>
-            <div class="stat"><span>Holding</span><b>5–7 Days</b></div>
-          </div>
-        </section>
-        <section class="card research-chart-card">
-          <p class="label">Price Structure</p>
-          <div class="research-chart-container" id="researchChartWrap">
-            <canvas id="researchCanvas"></canvas>
-          </div>
-        </section>
-        <div class="detail-grid">
-          <div class="detail-main">
-            <section class="card"><p class="label">Entry Plan</p>
-              <div class="entry-plan">
-                <div class="ep-row"><span>Entry Zone</span><b>$173 – $176</b></div>
-                <div class="ep-row"><span>TP 1</span><b class="green">$185</b></div>
-                <div class="ep-row"><span>TP 2</span><b class="green">$192</b></div>
-                <div class="ep-row"><span>TP 3</span><b class="green">$198</b></div>
-                <div class="ep-row"><span>Stop Loss</span><b class="red">$166</b></div>
-                <div class="ep-row expiry"><span>Expiry</span><b>Close if targets not reached within 5 days.</b></div>
-              </div>
-            </section>
-            <section class="card"><p class="label">Why This Opportunity Exists</p>
-              <ul class="reason-list">
-                <li><span class="check">✓</span> BTC broke weekly resistance with conviction.</li>
-                <li><span class="check">✓</span> Funding remains neutral — no crowding.</li>
-                <li><span class="check">✓</span> SOL broke out of 12-day consolidation.</li>
-                <li><span class="check">✓</span> Volume 2.3× the 20-period average.</li>
-                <li><span class="check">✓</span> Momentum accelerating across timeframes.</li>
-                <li><span class="check">✓</span> Capital rotating into Layer-1 sector.</li>
-              </ul>
-            </section>
-            <section class="card"><p class="label">Risk Notes</p>
-              <ul class="risk-list">
-                <li><span class="dot red"></span> BTC loses daily support level.</li>
-                <li><span class="dot yellow"></span> Funding flips extreme (positive or negative).</li>
-                <li><span class="dot yellow"></span> Breakout volume fails to sustain.</li>
-              </ul>
-            </section>
-          </div>
-          <div class="detail-side">
-            <section class="card"><p class="label">Probability Report</p>
-              <div class="prob-grid">
-                <div class="prob-item main"><span>Probability</span><b class="green">84%</b></div>
-                <div class="prob-item"><span>Hist. Success Rate</span><b>82%</b></div>
-                <div class="prob-item"><span>Hist. Samples</span><b>184 events</b></div>
-                <div class="prob-item"><span>Backtest Period</span><b>2021–2026</b></div>
-                <div class="prob-item"><span>Average Return</span><b class="green">+11.6%</b></div>
-                <div class="prob-item"><span>Avg Drawdown</span><b class="red">-3.8%</b></div>
-                <div class="prob-item"><span>Avg Holding</span><b>5.4 days</b></div>
-              </div>
-            </section>
-            <section class="card"><p class="label">Probability Breakdown</p>
-              <div class="score-bars">
-                <div class="bar-row"><span>Trend Score</span><div class="bar"><i style="width:95%"></i><b class="green">95%</b></div></div>
-                <div class="bar-row"><span>Volume Score</span><div class="bar"><i style="width:88%"></i><b class="green">88%</b></div></div>
-                <div class="bar-row"><span>Momentum Score</span><div class="bar"><i style="width:84%"></i><b class="green">84%</b></div></div>
-                <div class="bar-row"><span>Liquidity Score</span><div class="bar"><i style="width:86%"></i><b class="green">86%</b></div></div>
-                <div class="bar-row"><span>Macro Score</span><div class="bar"><i style="width:79%"></i><b>79%</b></div></div>
-              </div>
-              <div class="final-confidence"><span>Final Confidence</span><b class="grade a">A</b></div>
-            </section>
-            <section class="card ai-summary"><p class="label">AI Research Summary</p>
-              <blockquote>This opportunity emerged from a confluence of technical breakout, rising volume, and Layer-1 sector momentum. Across 184 historical samples with comparable characteristics, the probability of reaching the first target stands at 84%.</blockquote>
-            </section>
-            <section class="card"><p class="label">Execution Review</p>
-              <div class="exec-review">
-                <div class="er-row"><span>Setup</span><b>#412</b></div>
-                <div class="er-row"><span>Your Entry</span><b>$174.00</b></div>
-                <div class="er-row"><span>Your Exit</span><b>$191.00</b></div>
-                <div class="er-row"><span>Profit</span><b class="green">+9.7%</b></div>
-                <div class="er-row"><span>Followed Entry Plan?</span><b class="green">Yes</b></div>
-                <div class="er-row"><span>Followed Stop Loss?</span><b class="red">No</b></div>
-                <div class="er-row"><span>Exited at target?</span><b class="green">Yes</b></div>
-              </div>
-              <div class="ai-review-note"><span>AI Review</span><p>Entry followed plan. However, stop loss was moved during the trade, which increased risk.</p></div>
-            </section>
-          </div>
+        <span class="opp-arrow">→</span>
+      </div>
+      <div class="opp-row watching" data-page="research">
+        <div class="opp-left">
+          <span class="opp-status watching">WATCHING</span>
+          <b>LINK/USDT #413</b>
         </div>
-      </section>
-
-      <!-- ═══ ARCHIVE (v2) ═══ -->
-      <section class="page" id="archive-page">
-        <section class="card" style="padding:22px">
-          <div class="section-head"><div><p class="label">Opportunity Archive</p><h3>Historical Setups</h3></div></div>
-          <table class="archive-table">
-            <thead><tr><th>Setup</th><th>Pair</th><th>Published</th><th>Result</th><th>TP Hit</th><th>Duration</th><th>Return</th></tr></thead>
-            <tbody>
-              <tr><td class="mono">#412</td><td><b>SOL/USDT</b></td><td>Jul 28</td><td><span class="badge active">Active</span></td><td>—</td><td>—</td><td>—</td></tr>
-              <tr><td class="mono">#411</td><td><b>SUI/USDT</b></td><td>Jul 25</td><td><span class="badge win">TP1 Hit</span></td><td>✓</td><td>3d</td><td class="green">+8.2%</td></tr>
-              <tr><td class="mono">#410</td><td><b>RNDR/USDT</b></td><td>Jul 22</td><td><span class="badge win">TP2 Hit</span></td><td>✓</td><td>4d</td><td class="green">+14.1%</td></tr>
-              <tr><td class="mono">#409</td><td><b>LINK/USDT</b></td><td>Jul 18</td><td><span class="badge expired">Expired</span></td><td>—</td><td>5d</td><td class="muted">+0.3%</td></tr>
-              <tr><td class="mono">#408</td><td><b>ETH/USDT</b></td><td>Jul 15</td><td><span class="badge loss">Stop Loss</span></td><td>✗</td><td>2d</td><td class="red">-2.1%</td></tr>
-              <tr><td class="mono">#407</td><td><b>SOL/USDT</b></td><td>Jul 10</td><td><span class="badge win">TP2 Hit</span></td><td>✓</td><td>6d</td><td class="green">+12.4%</td></tr>
-            </tbody>
-          </table>
-        </section>
-      </section>
-
-      <!-- ═══ PERFORMANCE (v2) ═══ -->
-      <section class="page" id="performance-page">
-        <div class="section-head" style="margin-bottom:20px"><div><p class="label">Performance</p><h3>Your Trading Results</h3></div></div>
-        <div class="perf-grid">
-          <div class="card perf-card"><span>Opportunities Followed</span><b>34</b></div>
-          <div class="card perf-card"><span>Win Rate</span><b class="green">76.5%</b></div>
-          <div class="card perf-card"><span>Average Return</span><b class="green">+9.4%</b></div>
-          <div class="card perf-card"><span>Average Holding</span><b>4.8 days</b></div>
-          <div class="card perf-card"><span>Total Profit</span><b class="green">+$2,841</b></div>
-          <div class="card perf-card"><span>vs Buy & Hold</span><b class="green">+18.2%</b></div>
+        <div class="opp-mid">
+          <span>Prob <b class="green">81%</b></span>
+          <span>Grade <b class="green">A</b></span>
+          <span>Entry <b>$18.20–18.80</b></span>
         </div>
-        <div class="card" style="margin-top:24px;padding:28px;text-align:center">
-          <p style="color:var(--muted)">PnL Curve — 34 trades (coming soon)</p>
-          <div style="height:180px;border-radius:16px;background:var(--bg);margin-top:16px;display:flex;align-items:center;justify-content:center;color:var(--subtle);font-size:13px">Chart placeholder</div>
-        </div>
-      </section>
+        <span class="opp-arrow">→</span>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top:32px">
+      <h3>Market Pulse</h3>
+    </div>
+    <div class="pulse-grid" id="pulseGrid"></div>
+
+    <section class="card" id="dbStatsPanel" style="margin-top:24px">
+      <p style="color:var(--muted);padding:12px;text-align:center">IndexedDB initializing...</p>
     </section>
-  </main>
+  </section>
 
-  <div class="sheet-backdrop" id="sheetBackdrop"></div>
-  <aside class="bottom-sheet" id="bottomSheet" aria-hidden="true">
-    <div class="sheet-handle"></div>
-    <div id="sheetContent"></div>
-  </aside>
+  <!-- ═══ CHARTS ═══ -->
+  <section class="page" id="charts-page">
+    <div class="section-head">
+      <h3 id="activeChartTitle">BTCUSDT</h3>
+      <div class="timeframe-pills">
+        <button class="tf active">1H</button><button class="tf">4H</button><button class="tf">1D</button><button class="tf">1W</button>
+      </div>
+    </div>
+    <div class="coin-tabs" id="coinTabs"></div>
+    <div class="live-chart-canvas" id="mainChart"></div>
+    <div class="live-price-bar" id="livePriceBar">
+      <span class="price-loading">Loading...</span>
+    </div>
+    <div class="content-grid three-col" id="chartStats" style="margin-top:12px"></div>
+    <div class="raw-data-panel card" id="rawDataPanel" style="margin-top:12px">
+      <div class="section-head">
+        <h4 style="font-size:12px">Raw OHLCV Data</h4>
+        <div class="raw-data-actions">
+          <button class="ghost-btn" id="copyJsonBtn">Copy JSON</button>
+          <button class="ghost-btn" id="downloadJsonBtn">Download</button>
+          <button class="ghost-btn" id="toggleRawBtn">Toggle</button>
+        </div>
+      </div>
+      <div class="raw-data-table-wrapper" id="rawDataTableWrapper">
+        <table class="raw-data-table" id="rawDataTable">
+          <thead><tr><th>Time</th><th>O</th><th>H</th><th>L</th><th>C</th><th>V</th><th>Δ%</th><th>Dir</th></tr></thead>
+          <tbody id="rawDataBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-  <script src="db.js"></script>
-  <script src="app.js"></script>
+  <!-- ═══ SCANNER ═══ -->
+  <section class="page" id="scanner-page">
+    <div class="section-head">
+      <h3>Coin Scanner</h3>
+      <div class="filter-row">
+        <button class="chip active" data-filter="Momentum">Momentum</button>
+        <button class="chip" data-filter="Low risk">Low risk</button>
+        <button class="chip" data-filter="Breakout">Breakout</button>
+      </div>
+    </div>
+    <div class="scanner-table" id="scannerTable"></div>
+  </section>
+
+  <!-- ═══ JOURNAL ═══ -->
+  <section class="page" id="journal-page">
+    <div class="section-head">
+      <h3>Trading Journal</h3>
+      <button class="primary-btn" data-sheet="newTradeSheet">+ New Card</button>
+    </div>
+    <div class="trade-card win" data-sheet="tradeReviewSheet">
+      <div><strong>SOL long</strong><small>Calm · 78% · 4H</small></div><b class="green">+2.4R</b>
+    </div>
+    <div class="trade-card loss" data-sheet="tradeReviewSheet">
+      <div><strong>PEPE impulse</strong><small>FOMO · 42% · 15m</small></div><b class="red">-1.0R</b>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="score-bars">
+        <div><span>Thesis quality</span><i style="width:82%"></i></div>
+        <div><span>Risk control</span><i style="width:74%"></i></div>
+        <div><span>Emotional discipline</span><i style="width:61%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COACH ═══ -->
+  <section class="page" id="coach-page">
+    <h3>AI Coach</h3>
+    <div class="coach-thread" id="coachThread">
+      <div class="bubble ai">SOL is tradable if BTC closes above range. Your DNA shows patience is your edge.</div>
+      <div class="bubble user">Is this SOL setup worth taking?</div>
+      <div class="bubble ai">Yes — but use half size. You just won 2 in a row.</div>
+    </div>
+    <div class="prompt-row">
+      <button data-question="Why did my winrate drop?">Winrate</button>
+      <button data-question="Which coin fits me today?">Best coin</button>
+      <button data-question="Review my last trade">Review</button>
+    </div>
+    <form class="chat-box" id="coachForm">
+      <input id="coachInput" placeholder="Ask about a setup, risk, or habit" />
+      <button type="submit">→</button>
+    </form>
+  </section>
+
+  <!-- ═══ DNA ═══ -->
+  <section class="page" id="dna-page">
+    <div class="dna-card">
+      <div class="dna-ring"><span>72</span><small>DNA</small></div>
+      <div>
+        <h3>Patient momentum trader</h3>
+        <p>Edge strongest on SOL · 4H structures · Confirmation over prediction.</p>
+        <div class="mission-progress" style="margin-top:16px"><i style="width:60%"></i></div>
+        <small>Mission: Max 2 trades/day · 3/5 days</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RESEARCH (v2) ═══ -->
+  <section class="page" id="research-page">
+    <div class="detail-header">
+      <div class="detail-title">
+        <span class="opp-status active large">ACTIVE</span>
+        <div><h3>SOL / USDT — Setup #412</h3></div>
+      </div>
+      <div class="detail-quick-stats">
+        <span>Prob <b class="green">84%</b></span>
+        <span>Grade <b class="green">A</b></span>
+        <span>RR <b>1:2.9</b></span>
+        <span>Hold <b>5–7d</b></span>
+      </div>
+    </div>
+
+    <div class="research-chart-card">
+      <p class="label">Price Structure · 4H</p>
+      <div class="research-chart-container" id="researchChartWrap">
+        <canvas id="researchCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-main">
+        <div class="card">
+          <p class="label">Entry Plan</p>
+          <div class="entry-plan">
+            <div class="ep-row"><span>Entry Zone</span><b>$173 – $176</b></div>
+            <div class="ep-row"><span>TP 1</span><b class="green">$185</b></div>
+            <div class="ep-row"><span>TP 2</span><b class="green">$192</b></div>
+            <div class="ep-row"><span>TP 3</span><b class="green">$198</b></div>
+            <div class="ep-row"><span>Stop Loss</span><b class="red">$166</b></div>
+            <div class="ep-row expiry"><span>Expiry</span><b>5 days. Close if targets not reached.</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <p class="label">Why This Opportunity Exists</p>
+          <ul class="reason-list">
+            <li><span class="check">✓</span> BTC broke weekly resistance with conviction.</li>
+            <li><span class="check">✓</span> Funding remains neutral — no crowding.</li>
+            <li><span class="check">✓</span> SOL broke out of 12-day consolidation.</li>
+            <li><span class="check">✓</span> Volume 2.3× the 20-period average.</li>
+            <li><span class="check">✓</span> Momentum accelerating across timeframes.</li>
+            <li><span class="check">✓</span> Capital rotating into Layer-1 sector.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="label">Risk Notes</p>
+          <ul class="risk-list">
+            <li><span class="dot red"></span> BTC loses daily support.</li>
+            <li><span class="dot yellow"></span> Funding flips extreme.</li>
+            <li><span class="dot yellow"></span> Breakout volume fails to sustain.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="detail-side">
+        <div class="card">
+          <p class="label">Probability Report</p>
+          <div class="prob-grid">
+            <div class="prob-item main"><span>Probability</span><b>84%</b></div>
+            <div class="prob-item"><span>Success Rate</span><b>82%</b></div>
+            <div class="prob-item"><span>Samples</span><b>184</b></div>
+            <div class="prob-item"><span>Period</span><b>2021–26</b></div>
+            <div class="prob-item"><span>Avg Return</span><b class="green">+11.6%</b></div>
+            <div class="prob-item"><span>Avg Drawdown</span><b class="red">-3.8%</b></div>
+            <div class="prob-item"><span>Avg Hold</span><b>5.4d</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <p class="label">Breakdown</p>
+          <div class="bar-list">
+            <div class="bar-row"><span>Trend</span><div class="bar"><i style="width:95%"></i><b class="green">95</b></div></div>
+            <div class="bar-row"><span>Volume</span><div class="bar"><i style="width:88%"></i><b class="green">88</b></div></div>
+            <div class="bar-row"><span>Momentum</span><div class="bar"><i style="width:84%"></i><b class="green">84</b></div></div>
+            <div class="bar-row"><span>Liquidity</span><div class="bar"><i style="width:86%"></i><b class="green">86</b></div></div>
+            <div class="bar-row"><span>Macro</span><div class="bar"><i style="width:79%"></i><b>79</b></div></div>
+          </div>
+          <div class="final-confidence"><span>Final Grade</span><b class="green">A</b></div>
+        </div>
+        <div class="card ai-summary">
+          <p class="label">Research Summary</p>
+          <blockquote>Confluence of breakout, rising volume, and Layer-1 momentum. Across 184 comparable historical samples, probability of reaching first target: 84%.</blockquote>
+        </div>
+        <div class="card">
+          <p class="label">Execution Review</p>
+          <div class="exec-review">
+            <div class="er-row"><span>Entry</span><b>$174</b></div>
+            <div class="er-row"><span>Exit</span><b>$191</b></div>
+            <div class="er-row"><span>PnL</span><b class="green">+9.7%</b></div>
+            <div class="er-row"><span>Followed plan?</span><b class="green">Yes</b></div>
+            <div class="er-row"><span>SL respected?</span><b class="red">No</b></div>
+          </div>
+          <div class="ai-review-note"><span>Note</span><p>Stop loss was moved — risk increased.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ARCHIVE ═══ -->
+  <section class="page" id="archive-page">
+    <h3>Opportunity Archive</h3>
+    <table class="archive-table" style="margin-top:12px">
+      <thead><tr><th>#</th><th>Pair</th><th>Date</th><th>Result</th><th>TP</th><th>Return</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">412</td><td>SOL</td><td>Jul 28</td><td><span class="badge active">Active</span></td><td>—</td><td>—</td></tr>
+        <tr><td class="mono">411</td><td>SUI</td><td>Jul 25</td><td><span class="badge win">TP1</span></td><td>✓</td><td class="green">+8.2%</td></tr>
+        <tr><td class="mono">410</td><td>RNDR</td><td>Jul 22</td><td><span class="badge win">TP2</span></td><td>✓</td><td class="green">+14.1%</td></tr>
+        <tr><td class="mono">409</td><td>LINK</td><td>Jul 18</td><td><span class="badge expired">Expired</span></td><td>—</td><td class="muted">+0.3%</td></tr>
+        <tr><td class="mono">408</td><td>ETH</td><td>Jul 15</td><td><span class="badge loss">SL</span></td><td>✗</td><td class="red">-2.1%</td></tr>
+        <tr><td class="mono">407</td><td>SOL</td><td>Jul 10</td><td><span class="badge win">TP2</span></td><td>✓</td><td class="green">+12.4%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══ PERFORMANCE ═══ -->
+  <section class="page" id="performance-page">
+    <h3>Performance</h3>
+    <div class="perf-grid" style="margin-top:12px">
+      <div class="card"><span>Followed</span><b>34</b></div>
+      <div class="card"><span>Win Rate</span><b class="green">76.5%</b></div>
+      <div class="card"><span>Avg Return</span><b class="green">+9.4%</b></div>
+      <div class="card"><span>Avg Hold</span><b>4.8d</b></div>
+      <div class="card"><span>Total PnL</span><b class="green">+$2,841</b></div>
+      <div class="card"><span>vs B&H</span><b class="green">+18.2%</b></div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="bn-item" data-page="research"><span class="material-symbols-rounded">lab_research</span><small>Research</small></button>
+  <button class="bn-item" data-page="archive"><span class="material-symbols-rounded">archive</span><small>Archive</small></button>
+  <button class="bn-item" data-page="performance"><span class="material-symbols-rounded">insights</span><small>Perf</small></button>
+  <span class="bn-sep"></span>
+  <button class="bn-item active" data-page="dashboard"><span class="material-symbols-rounded">space_dashboard</span><small>Dash</small></button>
+  <button class="bn-item" data-page="charts"><span class="material-symbols-rounded">candlestick_chart</span><small>Charts</small></button>
+  <button class="bn-item" data-page="scanner"><span class="material-symbols-rounded">radar</span><small>Scan</small></button>
+  <button class="bn-item" data-page="journal"><span class="material-symbols-rounded">view_carousel</span><small>Journal</small></button>
+  <button class="bn-item" data-page="coach"><span class="material-symbols-rounded">forum</span><small>Coach</small></button>
+</nav>
+
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<aside class="bottom-sheet" id="bottomSheet" aria-hidden="true">
+  <div class="sheet-handle"></div>
+  <div id="sheetContent"></div>
+</aside>
+
+<script src="db.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
