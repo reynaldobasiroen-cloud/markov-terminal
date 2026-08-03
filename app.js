@@ -265,6 +265,7 @@ class CanvasChart {
 
     // Build canvas
     this.canvas = document.createElement('canvas');
+    this.canvas.style.display = 'block';
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.container.appendChild(this.canvas);
@@ -511,6 +512,115 @@ function renderMiniChart(data) {
   miniChartInst.setData(data);
 }
 
+// Standalone research chart — no CanvasChart class, direct canvas draw
+function drawResearchChart() {
+  const canvas = document.getElementById('researchCanvas');
+  const wrap = document.getElementById('researchChartWrap');
+  if (!canvas || !wrap) return;
+
+  const rect = wrap.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) {
+    setTimeout(drawResearchChart, 300);
+    return;
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const W = rect.width, H = rect.height;
+
+  // Clear
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // Generate data
+  const data = generateSimulatedKlines('SOLUSDT', '4h', 120);
+  const visible = data.slice(-60);
+  const padding = { top: 16, right: 50, bottom: 20, left: 8 };
+  const chartW = W - padding.left - padding.right;
+  const chartH = H - padding.top - padding.bottom;
+  const candleW = chartW / visible.length;
+
+  let minP = Infinity, maxP = -Infinity;
+  for (const d of visible) {
+    if (d.low < minP) minP = d.low;
+    if (d.high > maxP) maxP = d.high;
+  }
+  const range = maxP - minP || 1;
+  const toY = (p) => padding.top + chartH * (1 - (p - minP) / range);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 5; i++) {
+    const y = padding.top + (chartH * i) / 4;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(W - padding.right, y);
+    ctx.stroke();
+    const price = maxP - (range * i) / 4;
+    ctx.fillStyle = '#5A5040';
+    ctx.font = '9px IBM Plex Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(price >= 10 ? price.toFixed(1) : price.toFixed(2), W - 4, y + 3);
+  }
+
+  // Candles
+  for (let i = 0; i < visible.length; i++) {
+    const d = visible[i];
+    const x = padding.left + i * candleW + candleW / 2;
+    const bw = Math.max(1, candleW * 0.65);
+    const isUp = d.close >= d.open;
+    const bodyTop = toY(Math.max(d.open, d.close));
+    const bodyBot = toY(Math.min(d.open, d.close));
+    const bodyH = Math.max(1, bodyBot - bodyTop);
+
+    ctx.strokeStyle = isUp ? '#3dd68c' : '#f97066';
+    ctx.fillStyle = isUp ? '#3dd68c' : '#f97066';
+    ctx.lineWidth = 0.5;
+
+    // Wick
+    ctx.beginPath();
+    ctx.moveTo(x, toY(d.high));
+    ctx.lineTo(x, toY(d.low));
+    ctx.stroke();
+
+    // Body
+    if (bodyH < 1) {
+      ctx.beginPath();
+      ctx.moveTo(x - bw / 2, bodyTop);
+      ctx.lineTo(x + bw / 2, bodyTop);
+      ctx.stroke();
+    } else {
+      ctx.fillRect(x - bw / 2, bodyTop, bw, bodyH);
+    }
+  }
+
+  // Entry zone annotation
+  const entryTop = toY(176);
+  const entryBot = toY(173);
+  ctx.fillStyle = 'rgba(255,119,34,0.12)';
+  ctx.fillRect(padding.left, entryTop, chartW, entryBot - entryTop);
+  ctx.strokeStyle = 'rgba(255,119,34,0.5)';
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(padding.left, entryTop);
+  ctx.lineTo(W - padding.right, entryTop);
+  ctx.moveTo(padding.left, entryBot);
+  ctx.lineTo(W - padding.right, entryBot);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.fillStyle = '#FF7722';
+  ctx.font = '9px IBM Plex Mono, monospace';
+  ctx.textAlign = 'left';
+  const lastX = padding.left + (visible.length - 1) * candleW + candleW / 2;
+  ctx.fillText('Entry $173-176', lastX - 100, entryTop - 4);
+}
+
 // ══════════════════════════════════════════
 // LIVE PRICE BAR
 // ══════════════════════════════════════════
@@ -733,14 +843,7 @@ function navigate(page) {
   }
   // Init research chart when navigating to research page
   if (page === 'research') {
-    setTimeout(() => {
-      if (!researchChartInst) {
-        // Use simulated SOL data for the research chart
-        const data = generateSimulatedKlines('SOLUSDT', '4h', 120);
-        researchChartInst = new CanvasChart('researchChart', true);
-        researchChartInst.setData(data);
-      }
-    }, 150);
+    setTimeout(() => drawResearchChart(), 600);
   }
 }
 

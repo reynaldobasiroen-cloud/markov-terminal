@@ -6,7 +6,7 @@
   <title>Markov Terminal — Crypto Decision Website</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@450;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,10 +16,10 @@
   <main class="terminal-layout">
     <aside class="sidebar">
       <a class="brand" href="#dashboard" data-page="dashboard">
-        <span class="brand-mark">M</span>
+        <span class="brand-mark">/</span>
         <div>
           <strong>Markov</strong>
-          <small>Decision Terminal</small>
+          <small>Research Terminal</small>
         </div>
       </a>
 
@@ -291,7 +291,9 @@
         </section>
         <section class="card research-chart-card">
           <p class="label">Price Structure</p>
-          <div class="research-chart-container" id="researchChart"></div>
+          <div class="research-chart-container" id="researchChartWrap">
+            <canvas id="researchCanvas"></canvas>
+          </div>
         </section>
         <div class="detail-grid">
           <div class="detail-main">
