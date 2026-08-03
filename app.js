@@ -49,6 +49,7 @@ let mainChart = null;
 let mainSeries = null;
 let miniChartInst = null;
 let miniSeries = null;
+let researchChartInst = null;
 let rawKlineData = [];               // full raw data from Binance
 let refreshTimer = null;
 
@@ -729,6 +730,17 @@ function navigate(page) {
       if (mainChart) mainChart._resize();
       loadChartData(activeCoin.pair, currentInterval, 'main');
     }, 100);
+  }
+  // Init research chart when navigating to research page
+  if (page === 'research') {
+    setTimeout(() => {
+      if (!researchChartInst) {
+        // Use simulated SOL data for the research chart
+        const data = generateSimulatedKlines('SOLUSDT', '4h', 120);
+        researchChartInst = new CanvasChart('researchChart', true);
+        researchChartInst.setData(data);
+      }
+    }, 150);
   }
 }
 
