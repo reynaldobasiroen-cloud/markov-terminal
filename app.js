@@ -848,6 +848,8 @@ function renderPulse() {
 }
 
 function renderWatchlist() {
+  const el = document.getElementById('watchlistTable');
+  if (!el) return;
   const featured = coins.slice(0, 6);
   document.getElementById('watchlistTable').innerHTML = featured.map(c => `
     <button class="watch-row" data-coin="${c.symbol}">
