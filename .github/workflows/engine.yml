@@ -13,8 +13,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run engine
+           - name: Run engine
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: node scripts/run-engine.js
+        run: |
+          echo "URL set: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "KEY set: ${{ secrets.SUPABASE_KEY != '' }}"
+          node scripts/run-engine.js
