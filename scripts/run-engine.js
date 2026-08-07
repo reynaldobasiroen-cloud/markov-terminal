@@ -1,4 +1,4 @@
-// Markov Engine — CoinGecko API
+// Markov Engine — CoinGecko API (with rate-limit delay)
 const SUPABASE_URL=process.env.SUPABASE_URL,SUPABASE_KEY=process.env.SUPABASE_KEY;
 if(!SUPABASE_URL||!SUPABASE_KEY){console.error('Secrets missing');process.exit(1)}
 
@@ -19,9 +19,10 @@ function gen(coin,cd){const c=cd.map(k=>k.c),h=cd.map(k=>k.h),l=cd.map(k=>k.l),v
 {const fr={BTC:.008,ETH:.005,SOL:.012,SUI:.025,LINK:.003,RNDR:.006,DOGE:.018,PEPE:.032};const f=fr[coin.s]||.01;if(f<.005)sc[5]={s:86,l:'Neutral'};else if(f<.01)sc[5]={s:70,l:'Warm'};else if(f<.02)sc[5]={s:50,l:'Hot'};else sc[5]={s:25,l:'Extreme'}}
 const prob=Math.round(sc.reduce((s,x)=>s+x.s,0)/6);let grade='C';if(prob>=80)grade='A';else if(prob>=65)grade='B';if(grade==='C')return null;
 const lc=c[c.length-1],a=atr(h,l,c,14),rp=Math.min(.03,(a*2)/lc);
-return{id:'SIG-'+Date.now().toString(36).toUpperCase(),coin:coin.s,pair:coin.s+'USDT',name:coin.n,sector:'Crypto',probability:prob,grade,status:'active',entry_low:+(lc*(1-rp*.2)).toFixed(2),entry_high:+(lc*(1+rp*.2)).toFixed(2),tp1:+(lc*(1+rp*3)).toFixed(2),tp2:+(lc*(1+rp*4)).toFixed(2),tp3:+(lc*(1+rp*5)).toFixed(2),stop_loss:+(lc*(1-rp)).toFixed(2),risk_pct:+(rp*100).toFixed(1),expected_rr:'1:3',holding_days:'5-7',last_price:lc,atr:a,trend_score:sc[0].s,volume_score:sc[1].s,momentum_score:sc[2].s,breakout_score:sc[3].s,liquidity_score:sc[4].s,funding_score:sc[5].s,reasons:'[]',risks:'[]',research_summary:coin.s+' scores '+prob+'% Grade '+grade}}
+return{id:'SIG-'+Date.now().toString(36).toUpperCase(),coin:coin.s,pair:coin.s+'USDT',name:coin.n,sector:'Crypto',probability:prob,grade,status:'active',entry_low:+(lc*(1-rp*.2)).toFixed(2),entry_high:+(lc*(1+rp*.2)).toFixed(2),tp1:+(lc*(1+rp*3)).toFixed(2),tp2:+(lc*(1+rp*4)).toFixed(2),tp3:+(lc*(1+rp*5)).toFixed(2),stop_loss:+(lc*(1-rp)).toFixed(2),risk_pct:+(rp*100).toFixed(1),expected_rr:'1:3',holding_days:'5-7',last_price:lc,atr:a,trend_score:sc[0].s,volume_score:sc[1].s,momentum_score:sc[2].s,breakout_score:sc[3].s,liquidity_score:sc[4].s,funding_score:sc[5].s,reasons:'[]',risks:'[]',research_summary:coin.s+' scores '+prob+'% Grade '+grade}
 
 async function post(b){const r=await fetch(SUPABASE_URL+'/rest/v1/signals',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},body:JSON.stringify(b)});if(!r.ok){const t=await r.text();throw new Error(t.slice(0,100))}}
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
 
-async function main(){console.log('[Engine] CoinGecko scan...');let n=0;for(const c of COINS){try{console.log(c.s+'...');const d=await fetchOHLC(c.id);const s=gen(c,d);if(s){await post(s);console.log(c.s+': '+s.probability+'% '+s.grade+' OK');n++}else console.log(c.s+': Grade C skip')}catch(e){console.error(c.s+' ERR:',e.message)}}console.log('[Engine] Done: '+n+' signals')}
+async function main(){console.log('[Engine] CoinGecko scan...');let n=0;for(const c of COINS){try{console.log(c.s+'...');const d=await fetchOHLC(c.id);const s=gen(c,d);if(s){await post(s);console.log(c.s+': '+s.probability+'% '+s.grade+' OK');n++}else console.log(c.s+': Grade C skip')}catch(e){console.error(c.s+' ERR:',e.message)}await delay(2500)}console.log('[Engine] Done: '+n+' signals')}
 main();
