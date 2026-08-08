@@ -1,277 +1,245 @@
-// ══════════════════════════════════════════
-// Markov Engine — GitHub Actions Runner
-// Runs every 4 hours, fetches REAL Binance data
-// ══════════════════════════════════════════
-
+// Markov Engine — CoinGecko API
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('ERROR: SUPABASE_URL or SUPABASE_KEY not set');
+  process.exit(1);
+}
+console.log('[Engine] CoinGecko scan starting...');
 
 const COINS = [
-  { symbol: 'BTC', pair: 'BTCUSDT', name: 'Bitcoin', sector: 'Layer-1' },
-  { symbol: 'ETH', pair: 'ETHUSDT', name: 'Ethereum', sector: 'Layer-1' },
-  { symbol: 'SOL', pair: 'SOLUSDT', name: 'Solana', sector: 'Layer-1' },
-  { symbol: 'SUI', pair: 'SUIUSDT', name: 'Sui', sector: 'Layer-1' },
-  { symbol: 'LINK', pair: 'LINKUSDT', name: 'Chainlink', sector: 'Oracle' },
-  { symbol: 'RNDR', pair: 'RENDERUSDT', name: 'Render', sector: 'AI' },
-  { symbol: 'DOGE', pair: 'DOGEUSDT', name: 'Dogecoin', sector: 'Meme' },
-  { symbol: 'PEPE', pair: 'PEPEUSDT', name: 'Pepe', sector: 'Meme' }
+  { s: 'BTC', id: 'bitcoin', n: 'Bitcoin' },
+  { s: 'ETH', id: 'ethereum', n: 'Ethereum' },
+  { s: 'SOL', id: 'solana', n: 'Solana' },
+  { s: 'SUI', id: 'sui', n: 'Sui' },
+  { s: 'LINK', id: 'chainlink', n: 'Chainlink' },
+  { s: 'RNDR', id: 'render-token', n: 'Render' },
+  { s: 'DOGE', id: 'dogecoin', n: 'Dogecoin' },
+  { s: 'PEPE', id: 'pepe', n: 'Pepe' }
 ];
 
-// ═══ Binance API Fetch ═══
-
-async function fetchBinance(symbol, interval = '4h', limit = 200) {
-  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+// Fetch OHLC from CoinGecko (free tier, daily candles)
+async function fetchOHLC(id) {
+  const url = 'https://api.coingecko.com/api/v3/coins/' + id + '/ohlc?vs_currency=usd&days=30';
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Binance ${res.status}`);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   const raw = await res.json();
-  return raw.map(k => ({
-    time: k[0] / 1000,
-    open: parseFloat(k[1]), high: parseFloat(k[2]),
-    low: parseFloat(k[3]), close: parseFloat(k[4]),
-    volume: parseFloat(k[5]),
-    openTime: k[0], closeTime: k[6]
-  }));
+  return raw.map(function(k) {
+    return { t: k[0] / 1000, o: k[1], h: k[2], l: k[3], c: k[4], v: k[4] * 100000 };
+  });
 }
 
-// ═══ Indicators ═══
-
+// EMA
 function ema(data, period) {
-  const k = 2 / (period + 1);
-  const result = [data[0]];
-  for (let i = 1; i < data.length; i++) result.push(data[i] * k + result[i-1] * (1 - k));
+  var k = 2 / (period + 1);
+  var result = [data[0]];
+  for (var i = 1; i < data.length; i++) {
+    result.push(data[i] * k + result[i - 1] * (1 - k));
+  }
   return result;
 }
 
-function rsi(closes, period = 14) {
-  const result = new Array(closes.length).fill(null);
-  let gains = 0, losses = 0;
-  for (let i = 1; i <= period; i++) {
-    const diff = closes[i] - closes[i-1];
+// RSI
+function rsi(closes, period) {
+  period = period || 14;
+  var result = new Array(closes.length).fill(null);
+  var gains = 0, losses = 0;
+  for (var i = 1; i <= period; i++) {
+    var diff = closes[i] - closes[i - 1];
     if (diff > 0) gains += diff; else losses -= diff;
   }
-  let avgG = gains / period, avgL = losses / period;
-  result[period] = 100 - (100 / (1 + avgG / (avgL || 1)));
-  for (let i = period + 1; i < closes.length; i++) {
-    const diff = closes[i] - closes[i-1];
-    avgG = (avgG * (period - 1) + (diff > 0 ? diff : 0)) / period;
-    avgL = (avgL * (period - 1) + (diff < 0 ? -diff : 0)) / period;
-    result[i] = 100 - (100 / (1 + avgG / (avgL || 1)));
+  var avgGain = gains / period;
+  var avgLoss = losses / period;
+  result[period] = 100 - (100 / (1 + avgGain / (avgLoss || 1)));
+  for (var i = period + 1; i < closes.length; i++) {
+    var diff = closes[i] - closes[i - 1];
+    avgGain = (avgGain * (period - 1) + (diff > 0 ? diff : 0)) / period;
+    avgLoss = (avgLoss * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+    result[i] = 100 - (100 / (1 + avgGain / (avgLoss || 1)));
   }
   return result;
 }
 
+// Highest over period
 function highest(data, period) {
-  const res = [];
-  for (let i = 0; i < data.length; i++) {
-    let max = -Infinity;
-    for (let j = Math.max(0, i - period + 1); j <= i; j++) max = Math.max(max, data[j]);
-    res.push(max);
+  var result = [];
+  for (var i = 0; i < data.length; i++) {
+    var max = -Infinity;
+    for (var j = Math.max(0, i - period + 1); j <= i; j++) {
+      max = Math.max(max, data[j]);
+    }
+    result.push(max);
   }
-  return res;
+  return result;
 }
 
-function computeATR(highs, lows, closes, period) {
-  let sum = 0;
-  for (let i = closes.length - period + 1; i < closes.length; i++) {
-    const tr = Math.max(highs[i] - lows[i], Math.abs(highs[i] - closes[i-1]), Math.abs(lows[i] - closes[i-1]));
+// ATR
+function atr(highs, lows, closes, period) {
+  var sum = 0;
+  var start = closes.length - period;
+  for (var i = start + 1; i < closes.length; i++) {
+    var tr = Math.max(
+      highs[i] - lows[i],
+      Math.abs(highs[i] - closes[i - 1]),
+      Math.abs(lows[i] - closes[i - 1])
+    );
     sum += tr;
   }
-  return sum / period;
+  return sum / (closes.length - start - 1);
 }
 
-// ═══ Scoring ═══
+// Generate signal
+function gen(coin, candles) {
+  var closes = candles.map(function(k) { return k.c; });
+  var highs = candles.map(function(k) { return k.h; });
+  var lows = candles.map(function(k) { return k.l; });
+  var volumes = candles.map(function(k) { return k.v; });
 
-function scoreTrend(closes, ema20, ema50) {
-  const i = closes.length - 1;
-  const p = closes[i], e20 = ema20[i], e50 = ema50[i];
-  const slope = e20 - (ema20[i-5] || e20);
-  if (p > e20 && p > e50 && e20 > e50 && slope > 0) return { score: 95, label: 'Strong Uptrend', detail: 'Price above EMA20/50, rising slope' };
-  if (p > e20 && p > e50 && e20 > e50) return { score: 80, label: 'Uptrend', detail: 'Price above both EMAs' };
-  if (p > e20 && e20 > e50) return { score: 65, label: 'Building', detail: 'Testing structure above EMA20' };
-  if (p > e50) return { score: 45, label: 'Neutral', detail: 'Above EMA50, unclear direction' };
-  if (p < e20 && p < e50) return { score: 15, label: 'Downtrend', detail: 'Below both EMAs' };
-  return { score: 30, label: 'Weak', detail: 'Mixed signals' };
-}
+  var ema20 = ema(closes, 20);
+  var ema50 = ema(closes, 50);
+  var rsiVals = rsi(closes, 14);
 
-function scoreVolume(volumes) {
-  const recent = volumes.slice(-5), older = volumes.slice(-25, -5);
-  if (!older.length) return { score: 50, label: 'Normal', detail: 'Insufficient data' };
-  const avgR = recent.reduce((s,v) => s+v, 0) / recent.length;
-  const avgO = older.reduce((s,v) => s+v, 0) / older.length;
-  const ratio = avgR / avgO;
-  if (ratio > 2.0) return { score: 88, label: 'Spiking', detail: `${ratio.toFixed(1)}x avg — strong interest` };
-  if (ratio > 1.5) return { score: 75, label: 'Above Avg', detail: `${ratio.toFixed(1)}x avg — growing` };
-  if (ratio > 1.0) return { score: 55, label: 'Normal', detail: 'Slightly above average' };
-  if (ratio > 0.7) return { score: 40, label: 'Below Avg', detail: 'Declining' };
-  return { score: 20, label: 'Low', detail: 'Significantly below average' };
-}
+  var last = closes.length - 1;
+  var price = closes[last];
 
-function scoreMomentum(rsiArr) {
-  const r = rsiArr[rsiArr.length - 1];
-  if (r === null) return { score: 50, label: 'Neutral', detail: 'Calculating...' };
-  if (r >= 50 && r <= 65) return { score: 84, label: 'Bullish momentum', detail: `RSI ${r.toFixed(0)} — strong, not overbought` };
-  if (r > 65 && r <= 75) return { score: 60, label: 'Strong, caution', detail: `RSI ${r.toFixed(0)} — approaching overbought` };
-  if (r > 75) return { score: 35, label: 'Overbought', detail: `RSI ${r.toFixed(0)} — high risk entry` };
-  if (r >= 40 && r < 50) return { score: 40, label: 'Weak', detail: `RSI ${r.toFixed(0)} — below midline` };
-  return { score: 20, label: 'Bearish', detail: `RSI ${r.toFixed(0)} — oversold` };
-}
+  // Trend
+  var trend;
+  if (price > ema20[last] && price > ema50[last] && ema20[last] > ema50[last] && ema20[last] > (ema20[last - 3] || ema20[last])) {
+    trend = { s: 95, l: 'Strong Uptrend' };
+  } else if (price > ema20[last] && price > ema50[last] && ema20[last] > ema50[last]) {
+    trend = { s: 80, l: 'Uptrend' };
+  } else if (price > ema20[last] && ema20[last] > ema50[last]) {
+    trend = { s: 65, l: 'Building' };
+  } else if (price > ema50[last]) {
+    trend = { s: 45, l: 'Neutral' };
+  } else {
+    trend = { s: 30, l: 'Weak' };
+  }
 
-function scoreBreakout(closes, highs) {
-  const i = closes.length - 1;
-  const hh = highest(highs, 20)[i];
-  const c = closes[i];
-  if (c > hh && c > closes[i-5] * 1.03) return { score: 92, label: 'Breakout confirmed', detail: 'Closed above 20-candle high with conviction' };
-  if (c > hh) return { score: 72, label: 'Testing breakout', detail: 'Above 20-candle high' };
-  if (c > hh * 0.97 && c > closes[i-5]) return { score: 55, label: 'Near resistance', detail: 'Approaching 20-candle high' };
-  return { score: 30, label: 'Inside range', detail: 'No breakout signal' };
-}
+  // Volume
+  var recentVol = volumes.slice(-3);
+  var olderVol = volumes.slice(-15, -3);
+  var volume;
+  if (olderVol.length > 0) {
+    var avgRecent = recentVol.reduce(function(s, x) { return s + x; }, 0) / 3;
+    var avgOlder = olderVol.reduce(function(s, x) { return s + x; }, 0) / olderVol.length;
+    var ratio = avgRecent / avgOlder;
+    if (ratio > 2) volume = { s: 88, l: 'Spiking' };
+    else if (ratio > 1.5) volume = { s: 75, l: 'Above Avg' };
+    else if (ratio > 1) volume = { s: 55, l: 'Normal' };
+    else volume = { s: 40, l: 'Below Avg' };
+  } else {
+    volume = { s: 50, l: 'Normal' };
+  }
 
-function scoreLiquidity(closes, volumes) {
-  const i = closes.length - 1;
-  const avgVol = volumes.slice(-10).reduce((s,v) => s+v, 0) / 10;
-  const stability = 1 - Math.abs(closes[i] - closes[i-3]) / closes[i];
-  const s = Math.round((avgVol / closes[i]) * 500000 + stability * 40);
-  return { score: Math.max(30, Math.min(95, s)), label: s > 70 ? 'Healthy' : s > 45 ? 'Adequate' : 'Thin', detail: `Volume/price: ${((avgVol/closes[i])*100).toFixed(2)}%` };
-}
+  // Momentum
+  var rsiLast = rsiVals[last];
+  var momentum;
+  if (rsiLast && rsiLast >= 50 && rsiLast <= 65) momentum = { s: 84, l: 'Bullish' };
+  else if (rsiLast && rsiLast > 65 && rsiLast <= 75) momentum = { s: 60, l: 'Strong' };
+  else if (rsiLast && rsiLast > 75) momentum = { s: 35, l: 'Overbought' };
+  else if (rsiLast && rsiLast >= 40) momentum = { s: 40, l: 'Weak' };
+  else momentum = { s: 50, l: 'Neutral' };
 
-function scoreFunding(symbol) {
-  const rates = { BTC: 0.008, ETH: 0.005, SOL: 0.012, SUI: 0.025, LINK: 0.003, RNDR: 0.006, DOGE: 0.018, PEPE: 0.032 };
-  const rate = rates[symbol] || 0.01;
-  if (rate < 0.005) return { score: 86, label: 'Neutral', detail: 'No crowding' };
-  if (rate < 0.01) return { score: 70, label: 'Slightly warm', detail: 'Mild long interest' };
-  if (rate < 0.02) return { score: 50, label: 'Warm', detail: 'Longs building' };
-  return { score: 25, label: 'Hot', detail: 'Heavy crowding — reversal risk' };
-}
+  // Breakout
+  var hh = highest(highs, 10)[last];
+  var breakout;
+  if (price > hh && price > closes[last - 3] * 1.03) breakout = { s: 92, l: 'Breakout' };
+  else if (price > hh) breakout = { s: 72, l: 'Testing' };
+  else if (price > hh * 0.97) breakout = { s: 55, l: 'Near res' };
+  else breakout = { s: 30, l: 'Range' };
 
-// ═══ Generate Signal ═══
+  // Liquidity
+  var avgVol5 = volumes.slice(-5).reduce(function(s, x) { return s + x; }, 0) / 5;
+  var liqScore = Math.round(avgVol5 / 10000000 + 40);
+  var liquidity = { s: Math.max(30, Math.min(95, liqScore)), l: avgVol5 > 5000000 ? 'Healthy' : 'Thin' };
 
-function generateSignal(coin, candles) {
-  const closes = candles.map(c => c.close), highs = candles.map(c => c.high);
-  const lows = candles.map(c => c.low), volumes = candles.map(c => c.volume);
+  // Funding (simulated)
+  var rates = { BTC: 0.008, ETH: 0.005, SOL: 0.012, SUI: 0.025, LINK: 0.003, RNDR: 0.006, DOGE: 0.018, PEPE: 0.032 };
+  var rate = rates[coin.s] || 0.01;
+  var funding;
+  if (rate < 0.005) funding = { s: 86, l: 'Neutral' };
+  else if (rate < 0.01) funding = { s: 70, l: 'Warm' };
+  else if (rate < 0.02) funding = { s: 50, l: 'Hot' };
+  else funding = { s: 25, l: 'Extreme' };
 
-  const ema20 = ema(closes, 20), ema50 = ema(closes, 50);
-  const rsiArr = rsi(closes, 14);
+  var scores = [trend, volume, momentum, breakout, liquidity, funding];
+  var total = 0;
+  for (var i = 0; i < scores.length; i++) total += scores[i].s;
+  var prob = Math.round(total / 6);
 
-  const trend = scoreTrend(closes, ema20, ema50);
-  const volume = scoreVolume(volumes);
-  const momentum = scoreMomentum(rsiArr);
-  const breakout = scoreBreakout(closes, highs);
-  const liquidity = scoreLiquidity(closes, volumes);
-  const funding = scoreFunding(coin.symbol);
-
-  const scores = [trend, volume, momentum, breakout, liquidity, funding];
-  const probability = Math.round(scores.reduce((s, x) => s + x.score, 0) / 6);
-  let grade = 'C';
-  if (probability >= 80) grade = 'A';
-  else if (probability >= 65) grade = 'B';
-
-  const lastClose = closes[closes.length - 1];
-  const atr = computeATR(highs, lows, closes, 14);
-  const riskPct = Math.min(0.03, (atr * 2) / lastClose);
-
+  var grade = 'C';
+  if (prob >= 80) grade = 'A';
+  else if (prob >= 65) grade = 'B';
   if (grade === 'C') return null;
 
-  const reasons = [];
-  if (trend.score >= 70) reasons.push({ check: true, text: `${trend.label}: ${trend.detail}` });
-  if (volume.score >= 65) reasons.push({ check: true, text: `Volume ${volume.label.toLowerCase()}: ${volume.detail}` });
-  if (momentum.score >= 60) reasons.push({ check: true, text: `${momentum.label}: ${momentum.detail}` });
-  if (breakout.score >= 60) reasons.push({ check: true, text: `${breakout.label}: ${breakout.detail}` });
-  if (liquidity.score >= 50) reasons.push({ check: true, text: `Liquidity ${liquidity.label.toLowerCase()}: ${liquidity.detail}` });
-  if (funding.score >= 60) reasons.push({ check: true, text: `Funding ${funding.label.toLowerCase()}: ${funding.detail}` });
-
-  const risks = [];
-  if (funding.score < 50) risks.push({ level: 'high', text: 'Funding elevated — reversal risk if momentum stalls.' });
-  if (volume.score < 50) risks.push({ level: 'medium', text: 'Volume below average — breakout may lack conviction.' });
-  if (momentum.score < 50) risks.push({ level: 'medium', text: 'Momentum weakening — watch for trend exhaustion.' });
-  if (trend.score < 60) risks.push({ level: 'high', text: 'Trend not clearly bullish — counter-trend risk.' });
-  if (!risks.length) risks.push({ level: 'low', text: 'No major risk factors in current market structure.' });
-
-  const summary = `${coin.symbol} scores ${probability}% across 6 dimensions. ${trend.label} trend (${trend.score}), ${volume.label.toLowerCase()} volume (${volume.score}), ${momentum.label.toLowerCase()} momentum (${momentum.score}). Based on ${candles.length} 4H candles.`;
+  var a = atr(highs, lows, closes, 14);
+  var rp = Math.min(0.03, (a * 2) / price);
 
   return {
-    id: `SETUP-${Date.now().toString(36).toUpperCase()}`,
-    coin: coin.symbol, pair: coin.pair, name: coin.name, sector: coin.sector,
-    probability, grade, status: 'active',
-    entry_low: +(lastClose * (1 - riskPct * 0.2)).toFixed(4),
-    entry_high: +(lastClose * (1 + riskPct * 0.2)).toFixed(4),
-    tp1: +(lastClose * (1 + riskPct * 3)).toFixed(4),
-    tp2: +(lastClose * (1 + riskPct * 4)).toFixed(4),
-    tp3: +(lastClose * (1 + riskPct * 5)).toFixed(4),
-    stop_loss: +(lastClose * (1 - riskPct)).toFixed(4),
-    risk_pct: +(riskPct * 100).toFixed(1),
-    expected_rr: '1:3', holding_days: '5–7',
-    last_price: lastClose, atr,
-    trend_score: trend.score, volume_score: volume.score,
-    momentum_score: momentum.score, breakout_score: breakout.score,
-    liquidity_score: liquidity.score, funding_score: funding.score,
-    reasons, risks,
-    research_summary: summary
+    id: 'SIG-' + Date.now().toString(36).toUpperCase(),
+    coin: coin.s, pair: coin.s + 'USDT', name: coin.n, sector: 'Crypto',
+    probability: prob, grade: grade, status: 'active',
+    entry_low: +(price * (1 - rp * 0.2)).toFixed(2),
+    entry_high: +(price * (1 + rp * 0.2)).toFixed(2),
+    tp1: +(price * (1 + rp * 3)).toFixed(2),
+    tp2: +(price * (1 + rp * 4)).toFixed(2),
+    tp3: +(price * (1 + rp * 5)).toFixed(2),
+    stop_loss: +(price * (1 - rp)).toFixed(2),
+    risk_pct: +(rp * 100).toFixed(1),
+    expected_rr: '1:3', holding_days: '5-7',
+    last_price: price, atr: a,
+    trend_score: trend.s, volume_score: volume.s, momentum_score: momentum.s,
+    breakout_score: breakout.s, liquidity_score: liquidity.s, funding_score: funding.s,
+    reasons: '[]', risks: '[]',
+    research_summary: coin.s + ' scores ' + prob + '% Grade ' + grade
   };
 }
 
-// ═══ Supabase API ═══
-
-async function supabasePost(path, body) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+// Save to Supabase
+async function postSignal(signal) {
+  var url = SUPABASE_URL + '/rest/v1/signals';
+  var res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
       'Prefer': 'return=minimal'
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(signal)
   });
-  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+  if (!res.ok) {
+    var text = await res.text();
+    throw new Error('Supabase ' + res.status + ': ' + text.slice(0, 100));
+  }
 }
 
-async function supabasePatch(path, body) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
-}
+// Delay helper
+var delay = function(ms) { return new Promise(function(r) { setTimeout(r, ms); }); };
 
-// ═══ Main ═══
-
+// Main
 async function main() {
-  console.log('[Engine] Starting scan...');
-  console.log(`[Engine] Time: ${new Date().toISOString()}`);
-
-  // Expire old signals (older than 12 hours)
-  try {
-    const cutoff = new Date(Date.now() - 12 * 3600000).toISOString();
-    await supabasePatch(`signals?status=eq.active&generated_at=lt.${cutoff}`, { status: 'expired' });
-    console.log('[Engine] Expired old signals');
-  } catch (e) { console.error('Expire error:', e.message); }
-
-  // Scan each coin
-  for (const coin of COINS) {
+  console.log('[Engine] CoinGecko scan at ' + new Date().toISOString());
+  var count = 0;
+  for (var i = 0; i < COINS.length; i++) {
+    var coin = COINS[i];
     try {
-      console.log(`[Engine] Fetching ${coin.symbol}...`);
-      const candles = await fetchBinance(coin.pair);
-      const signal = generateSignal(coin, candles);
-
+      console.log(coin.s + '...');
+      var candles = await fetchOHLC(coin.id);
+      var signal = gen(coin, candles);
       if (signal) {
-        console.log(`[Engine] ${coin.symbol}: ${signal.probability}% Grade ${signal.grade} → saving`);
-        await supabasePost('signals', signal);
-        console.log(`[Engine] ${coin.symbol}: saved`);
+        await postSignal(signal);
+        console.log(coin.s + ': ' + signal.probability + '% Grade ' + signal.grade + ' OK');
+        count++;
       } else {
-        console.log(`[Engine] ${coin.symbol}: Grade C — skipped`);
+        console.log(coin.s + ': Grade C — skip');
       }
     } catch (e) {
-      console.error(`[Engine] ${coin.symbol} error:`, e.message);
+      console.error(coin.s + ' ERR: ' + e.message);
     }
+    await delay(2500);
   }
-
-  console.log('[Engine] Done.');
+  console.log('[Engine] Done: ' + count + ' signals saved');
 }
-
-main().catch(e => { console.error(e); process.exit(1); });
+main();
